@@ -1,0 +1,11 @@
+spacy
+nltk
+numpy
+pandas
+scikit-learn
+matplotlib
+seaborn
+graphviz
+pydotplus
+wordcloud
+xgboost
