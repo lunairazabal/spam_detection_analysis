@@ -11,7 +11,7 @@ def transform_data(data):
 def predict(data_processed, model_type='ml'):
     # cargar el modelo
     if model_type == 'ml':
-        model = pickle.load(open(os.path.join(MODELS_PATH, 'xg_boost_model.pkl'), 'rb'))
+        model = pickle.load(open(os.path.join(MODELS_PATH, 'xgb.app.pkl'), 'rb'))
     else:
         raise ValueError("Tipo de modelo no reconocido. Utiliza 'ml' para modelos de machine learning.")
 
