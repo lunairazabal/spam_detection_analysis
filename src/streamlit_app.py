@@ -1,20 +1,15 @@
 from inference import transform_data, predict
 import streamlit as st
 
-#put and image in the app
-from PIL import Image
-image = Image.open('Imagen de WhatsApp 2023-12-28 a las 12.02.36_6d2ecfe6.jpg')
-st.image(image, use_column_width=True)
-
 st.title("Spam Guardian")
 
-
-
-# cuando le den al boton de predecir llamamos primero a transform_data y luego a predict
-
+# Solicitar texto en inglés
 text_input = st.text_input('Introduce un texto en inglés')
-btn_predict=st.button('Predecir')
 
+# Botón para predecir
+btn_predict = st.button('Predecir')
+
+# Verificar si se hizo clic en el botón
 if btn_predict:
     # transformar los datos
     data = transform_data(text_input)
@@ -24,6 +19,7 @@ if btn_predict:
 
     # mostrar el resultado
     st.write(prediction)
+
 
 # from inference import transform_data, predict
 # import streamlit as st
