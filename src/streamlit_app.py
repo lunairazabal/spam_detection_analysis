@@ -3,11 +3,7 @@ import streamlit as st
 import xgboost as xgb
 
 st.title("Spam Guardian")
-#add a picture
-from PIL import Image
-image_path = 'Imagen de WhatsApp 2023-12-28 a las 12.02.36_6d2ecfe6.jpg'
-image = Image.open(image_path)
-st.image(image, use_column_width=True)
+
 
 # Solicitar texto en inglés
 text_input = st.text_input('Introduce un texto en inglés')
