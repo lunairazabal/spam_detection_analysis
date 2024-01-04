@@ -1,52 +1,52 @@
-from inference import transform_data, predict
+from src.inference import transform_data, predict
 import streamlit as st
-import xgboost as xgb
+import pandas as pd
+import numpy as np
 
-st.title("Spam Guardian")
+#add a picture
+from PIL import Image
+image = Image.open('C:/Users/lunai/OneDrive/Escritorio/capstone1/spam_detection_analysis/spamtdetc3.png')
+
+st.image(image, use_column_width=True)
+
+#st.title("Spam Guardian")
 
 
 # Solicitar texto en inglés
-text_input = st.text_input('Introduce un texto en inglés')
+st.markdown('## Write your text here:')
+text_input = st.text_input('')
+
+st.write('<p style="text-align:right;">160 characters</p>', unsafe_allow_html=True)
+
 
 # Botón para predecir
-btn_predict = st.button('Predecir')
+btn_predict = st.button('Predict')
 
 # Verificar si se hizo clic en el botón
 if btn_predict:
-    # transformar los datos
+    # Transformar los datos
     data = transform_data(text_input)
 
-    # predecir
+    # Predecir
     prediction = predict(data)
 
-    # mostrar el resultado
-    st.write(prediction)
+    # Mapear la predicción a etiquetas más descriptivas (ajusta esto según tu lógica)
+    if prediction == 1:
+        result_label = "Spam"
+    else:
+        result_label = "No Spam"
+
+    # Mostrar el resultado
+    st.write(f"La predicción es: {result_label}")
 
 
-# from inference import transform_data, predict
-# import streamlit as st
-# from PIL import Image
-
-# # Cargar una imagen en la aplicación
-# image = Image.open('Imagen de WhatsApp 2023-12-28 a las 12.02.36_6d2ecfe6.jpg')
-# st.image(image, use_column_width=True)
-
-# st.title("Spam Guardian")
-
-# # Inicializar btn_predict
-# btn_predict = None
-
-# # Cuando le den al botón de predecir llamamos primero a transform_data y luego a predict
-# text_input = st.text_input('Introduce un texto en inglés')
-# if st.button('Predecir'):
-#     btn_predict = True
-
+# # Verificar si se hizo clic en el botón
 # if btn_predict:
-#     # Transformar los datos
+#     # transformar los datos
 #     data = transform_data(text_input)
 
-#     # Predecir
+#     # predecir
 #     prediction = predict(data)
 
-#     # Mostrar el resultado
+#     # mostrar el resultado
 #     st.write(prediction)
