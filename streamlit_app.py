@@ -1,4 +1,4 @@
-from src.inference import transform_data, predict
+from inference import transform_data, predict
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -13,7 +13,7 @@ st.image(image, use_column_width=True)
 
 
 # Solicitar texto en inglés
-st.markdown('## Write your text here:')
+st.markdown('## Put your SMS here :')
 text_input = st.text_input('')
 
 st.write('<p style="text-align:right;">160 characters</p>', unsafe_allow_html=True)
@@ -40,13 +40,3 @@ if btn_predict:
     st.write(f"La predicción es: {result_label}")
 
 
-# # Verificar si se hizo clic en el botón
-# if btn_predict:
-#     # transformar los datos
-#     data = transform_data(text_input)
-
-#     # predecir
-#     prediction = predict(data)
-
-#     # mostrar el resultado
-#     st.write(prediction)
