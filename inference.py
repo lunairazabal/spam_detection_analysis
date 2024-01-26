@@ -12,6 +12,13 @@ import xgboost
 import pandas as pd
 from io import StringIO
 import numpy as np
+import spacy
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+import pandas as pd
+import nltk
+
 
 def transform_data(data):
     # Agrega aquí la lógica de transformación de datos si es necesaria
@@ -22,18 +29,21 @@ def transform_data(data):
    # Llama a la función transformations y aplica las transformaciones al data
     trans1 = str(data).lower()
     trans2 = transformations(trans1)
-    trans3 = get_wordnet_pos(trans2)
-    trans4 = lemmatize_words(trans3)
-    
-    # Convierte la lista de palabras lematizadas a una cadena
-    trans5 = ' '.join(trans4)
-    
-    # Llama a la función remove_stopwords
-    trans6 = remove_stopwords(trans5)
+    trans3= word_tokenize(trans2)
+    trans4 = lemmatize_text(trans3)
+    trans5 = remove_stopwords(trans4)
 
-    print(trans6)
+    
+    num_features = 30  # Ajusta esto según la dimensión correcta
 
-    return trans6
+    # Convertir las características a una matriz NumPy con la misma dimensión
+    data_array = np.zeros(num_features)
+
+    # Llenar la matriz con las características transformadas
+    for feature_idx, count in enumerate(data_array):
+        data_array[feature_idx] = count
+
+    return data_array
 
 def transformations(data):
     if data == "NA":
@@ -82,60 +92,124 @@ def transformations(data):
         data = re.sub(r'\b(i\'i)\b', 'i', data)
         data = re.sub(r'\b(cos)\b', 'because', data)
         return data
-    
-def get_wordnet_pos(word):
-    """Mapea las etiquetas POS de NLTK a etiquetas de WordNet."""
-    tag = nltk.pos_tag([word])[0][1][0].upper()
-    tag_dict = {"J": wordnet.ADJ, "N": wordnet.NOUN, "V": wordnet.VERB, "R": wordnet.ADV}
-    return tag_dict.get(tag, wordnet.NOUN)
 
-def lemmatize_words(words):
-    """Realiza la lematización de una lista de palabras."""
-    lemmatizer = WordNetLemmatizer()
-    return [lemmatizer.lemmatize(word, get_wordnet_pos(word)) for word in words]
+nlp = spacy.load('en_core_web_sm')
+import spacy
 
+def word_tokenize(text, language='en_core_web_sm'):
+    """
+    Tokeniza un texto en inglés utilizando spaCy.
 
+    Parámetros:
+    - text: Texto a ser tokenizado.
+    - language: Modelo de lenguaje de spaCy a utilizar (por defecto, 'en_core_web_sm').
+
+    Retorna:
+    - Lista de tokens.
+    """
+    nlp = spacy.load(language)
+    doc = nlp(text)
+    tokens = [token.text for token in doc]
+    return tokens
+
+# Inicializar el lematizador de spaCy
+nlp = spacy.load('en_core_web_sm')
+
+# Supongamos que ya tienes el DataFrame 'sms' con una columna 'Tokens' que contiene listas de palabras
+# sms['Tokens'] = ...
+
+# Definir la función de lematización con spaCy
+def lemmatize_text(word_list):
+    text = ' '.join(word_list)
+    doc = nlp(text)
+    lemmas = [token.lemma_ for token in doc]
+    return lemmas
+
+from nltk.corpus import stopwords
+
+# Descargar la lista de stopwords en inglés si no lo has hecho antes
+nltk.download('stopwords')
+
+# Definir la lista de stopwords en inglés
 stop_words = set(stopwords.words('english'))
-def remove_stopwords(text):
-    words = text.split()
-    filtered_words = [word for word in words if word.lower() not in stop_words]
-    return ' '.join(filtered_words)
 
+def remove_stopwords(lemmas):
+    """
+    Elimina las stopwords de una lista de lemas.
 
+    Parámetros:
+    - lemas: Lista de lemas.
 
+    Retorna:
+    - Lista de lemas sin stopwords.
+    """
+    filtered_lemmas = [lemma for lemma in lemmas if lemma.lower() not in stop_words]
+    return filtered_lemmas
+
+import pickle
+import xgboost
+import numpy as np
 def predict(data, model_type='ml'):
     # Cargar el modelo y predecir
     if model_type == 'ml':
-        model_path = './models/xgb_app.dat'  # Puedes colocar directamente el path del modelo
+        model_path = './models/xgb_app.dat'  # Coloca directamente el path del modelo
         
         # Cargar el modelo
         with open(model_path, 'rb') as model_file:
             model = pickle.load(model_file)
             print("Modelo cargado correctamente.")
 
-        # Cargar los datos
+        # Transformar los datos
         data_processed = transform_data(data)
-        print("Datos cargados y transformados correctamente.")
 
-        # Convertir los datos procesados en una lista de palabras
-        words = data_processed.split()
+        # Realizar la predicción
+        prediction = model.predict(np.array([data_processed]))
+        print("Predicción realizada:", prediction)
 
-        # Crear un diccionario de bolsa de palabras
-        bag_of_words = {word: words.count(word) for word in set(words)}
+        # Devolver el resultado como "Spam" o "No Spam"
+        result = "Spam" if prediction[0] == 1 else "No Spam"
+        return result
+    else:
+        raise ValueError("Tipo de modelo no reconocido. Utiliza 'ml' para modelos de machine learning.")
 
-        # Crear una lista de tuplas (indice, valor) para DMatrix
-        data_tuples = [(feature_idx, count) for feature_idx, (word, count) in enumerate(bag_of_words.items())]
 
-        # Obtener las dimensiones del conjunto de datos
-        num_features = len(data_tuples)
-        num_rows = 1  # Solo una fila de datos
+# def predict(data, model_type='ml'):
+#     data_transformed = transform_data(data)
+    
+#     # Cargar el modelo y predecir
+#     if model_type == 'ml':
+#         model_path = './models/xgb_app.dat'  # Coloca directamente el path del modelo
 
-        # Crear un array de dos dimensiones para DMatrix
-        data_array = np.zeros((num_rows, num_features))
+#         # Cargar el modelo
+#         with open(model_path, 'rb') as model_file:
+#             model = pickle.load(model_file)
+#             print("Modelo cargado correctamente.")
 
-        # Llenar el array con los valores de las tuplas
-        for feature_idx, count in data_tuples:
-            data_array[0, feature_idx] = count
+#         # Tokenizar y lematizar el texto
+#         tokens = word_tokenize(data_transformed)
+#         lemmatized_tokens = lemmatize_text(tokens)
 
-        # Crear DMatrix
-        data_matrix = xgboost.DMatrix(data_array)
+#         # Crear un diccionario de bolsa de palabras
+#         bag_of_words = {word: lemmatized_tokens.count(word) for word in set(lemmatized_tokens)}
+
+#         # Crear una lista de tuplas (indice, valor) para DMatrix
+#         data_tuples = [(feature_idx, count) for feature_idx, (word, count) in enumerate(bag_of_words.items())]
+
+#         # Obtener las dimensiones del conjunto de datos
+#         num_features = len(data_tuples)
+#         num_rows = 1  # Solo una fila de datos
+
+#         # Crear un array de dos dimensiones para DMatrix
+#         data_array = np.zeros((num_rows, num_features))
+
+#         # Llenar el array con los valores de las tuplas
+#         for feature_idx, count in data_tuples:
+#             data_array[0, feature_idx] = count
+
+#         # Crear DMatrix
+#         data_matrix = xgb.DMatrix(data_array)
+
+#         # Realizar la predicción
+#         prediction = model.predict(data_matrix)
+#         print("Predicción realizada:", prediction)
+#         return prediction

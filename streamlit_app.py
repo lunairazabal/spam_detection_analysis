@@ -13,7 +13,7 @@ st.image(image, use_column_width=True)
 
 
 # Solicitar texto en inglés
-st.markdown('## Put your SMS here :')
+st.markdown('## Put your SMS here:')
 text_input = st.text_input('')
 
 st.write('<p style="text-align:right;">160 characters</p>', unsafe_allow_html=True)
@@ -37,6 +37,5 @@ if btn_predict:
         result_label = "No Spam"
 
     # Mostrar el resultado
-    st.write(f"La predicción es: {result_label}")
-
-
+    st.write(f"The prediction is: {result_label}")
+    
